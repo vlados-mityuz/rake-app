@@ -23,7 +23,9 @@ class App
 
   def create_formatter(request_params)
     formatter = Timeformatter.new(request_params)
-    response(200, formatter.time)
+    formatter.call
+    response(400,"Unknown format #{formatter.format_error}") unless formatter.success?
+    response(200, "#{formatter.time_by_pattern}" ) if formatter.success?
   end
 
   def response(status, body)

@@ -6,19 +6,25 @@ class TimeFormatter
 
   def initialize(params)
     @params = params.split(',')
+    @format_errors = []
+    @valid_params = []
   end
 
-  def time
-    body = self.params.reduce('') { |body_box, param| body_box << DESIGNATION[param] }
-    body = body.split('').join('-')
-    Time.now.strftime(body)
+  def call
+    @params.each do |param|
+     DESIGNATION.key?(param) ? @valid_params << DESIGNATION[param] : @format_errors << param
+    end
   end
 
-  def invalid_params
-    self.params - DESIGNATION.keys
+  def success?
+    @format_errors.empty?
   end
 
-  def valid?
-    invalid_params.empty?
+  def time_by_pattern
+    Time.now.strftime(@valid_params.join('-'))
+  end
+
+  def format_error
+    @format_errors
   end
 end
