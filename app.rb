@@ -15,25 +15,19 @@ class App
     request_params = request.params['format']
 
     if path != '/time'
-      return [404, headers, ["404\n"]]
-    elsif request_params.nil?
-      return [400, headers, ["invalid_format_name\n"]]
+      return response(404, ["404\n"])
     end
-      
-    formatter = Timeformatter.new(request_params)
-    if formatter.valid?
-      body = formatter.time
-      status = 200
-    else
-      invalid_params = formatter.invalid_params
-      body = "Unknow time format #{invalid_params}"
-      status = 400
-    end
-    [status, headers, ["#{body}\n"]]
+
+    create_formatter(request_params)
   end
 
-  def headers
-    { 'Content-Type' => 'text/plain'}
+  def create_formatter(request_params)
+    formatter = Timeformatter.new(request_params)
+    response(200, formatter.time)
+  end
+
+  def response(status, body)
+    Rack::Response.new([body], status, { 'Content-Type' => 'text/plain' }).finish
   end
   
 end
